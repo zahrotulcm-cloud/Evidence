@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, render_template_string, send_file, flash, redirect, url_for, jsonify
 from docx import Document
 from docx.shared import Inches, Pt, Cm
@@ -10,7 +11,6 @@ from docx.oxml import parse_xml
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
-import os
 import tempfile
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -18,7 +18,7 @@ import uuid
 import base64
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-here'
+app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-here')
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max file size
 app.config['UPLOAD_FOLDER'] = 'temp_uploads'
 
@@ -197,7 +197,7 @@ def generate_word_document(form_data, uploaded_files):
     
     # GPON Images with larger size for landscape
     gpon_images = [
-        ('foto_gpon_1', 'lemari_gpon'),  # Remove tuple wrapper
+        ('foto_gpon_1', 'lemari_gpon'),
         ('foto_gpon_2', 'keterangan_gpon_2'),
         ('foto_gpon_3', 'card_gpon'),
         ('foto_gpon_4', 'port_gpon')
@@ -207,19 +207,16 @@ def generate_word_document(form_data, uploaded_files):
     for i, (img_key, text_key) in enumerate(gpon_images):
         row, col = positions[i]
         cell = gpon_img_table.cell(row, col)
-        cell.text = ""  # Clear default content
+        cell.text = ""
         
-        # Create nested table for image + caption layout
         nested = cell.add_table(rows=2, cols=1)
         nested.autofit = False
         nested.alignment = WD_TABLE_ALIGNMENT.CENTER
         
-        # Image row
         img_cell = nested.cell(0, 0)
         if uploaded_files.get(img_key):
             add_image_to_cell(img_cell, uploaded_files.get(img_key), width=Inches(2.0))
         
-        # Caption row
         text_cell = nested.cell(1, 0)
         add_label_box(text_cell, form_data.get(text_key, ""))
         set_cell_margin(cell, bottom=50)
@@ -250,13 +247,12 @@ def generate_word_document(form_data, uploaded_files):
     ftm_img_table.style = 'Table Grid'
     ftm_img_table.alignment = WD_TABLE_ALIGNMENT.CENTER
 
-    # pastikan tiap cell juga ikut
     for row in ftm_img_table.rows:
         row.cells[0].width = Cm(6.5)
         row.cells[1].width = Cm(6.5)
     
     ftm_images = [
-        ('foto_ftm_1', 'lemari_ftm'),  # Remove tuple wrapper
+        ('foto_ftm_1', 'lemari_ftm'),
         ('foto_ftm_2', 'keterangan_ftm_2'),
         ('foto_ftm_3', 'otb_ftm'),
         ('foto_ftm_4', 'slot_port_ftm')
@@ -266,19 +262,16 @@ def generate_word_document(form_data, uploaded_files):
     for i, (img_key, text_key) in enumerate(ftm_images):
         row, col = positions[i]
         cell = ftm_img_table.cell(row, col)
-        cell.text = ""  # Clear default content
+        cell.text = ""
         
-        # Create nested table for image + caption layout
         nested = cell.add_table(rows=2, cols=1)
         nested.autofit = False
         nested.alignment = WD_TABLE_ALIGNMENT.CENTER
         
-        # Image row
         img_cell = nested.cell(0, 0)
         if uploaded_files.get(img_key):
             add_image_to_cell(img_cell, uploaded_files.get(img_key), width=Inches(2.0))
         
-        # Caption row
         text_cell = nested.cell(1, 0)
         add_label_box(text_cell, form_data.get(text_key, ""))
         
@@ -287,7 +280,6 @@ def generate_word_document(form_data, uploaded_files):
     # PAGE 2 - FTM Detail & ODC (Landscape optimized)
     add_page_break(doc)
     
-    # Create landscape layout for FTM Detail and ODC
     page2_table = doc.add_table(rows=1, cols=2)
     page2_table.autofit = False
     remove_table_borders(page2_table)
@@ -301,7 +293,6 @@ def generate_word_document(form_data, uploaded_files):
     ftm_detail_para = ftm_detail_cell.paragraphs[0]
     ftm_detail_para.clear()
     
-    # FTM detail Info Box
     ftm_detail_info_table = ftm_detail_cell.add_table(rows=1, cols=1)
     ftm_detail_info_table.style = 'Table Grid'
     ftm_detail_info_cell = ftm_detail_info_table.cell(0, 0)
@@ -310,14 +301,12 @@ def generate_word_document(form_data, uploaded_files):
     ftm_detail_info_cell.width = Cm(8)
     ftm_detail_info_table.alignment = WD_TABLE_ALIGNMENT.CENTER 
 
-    # FTM Detail Info
     ftm_detail_info_para = ftm_detail_info_cell.paragraphs[0]
     ftm_detail_info_para.add_run(f" {form_data.get('ruang_ftm')}").bold = True
     ftm_detail_info_para.add_run(f"\n{form_data.get('koordinat_ftm_detail')}").bold = True
     ftm_detail_info_para.add_run(f"\n{form_data.get('kode_ftm_detail')}").bold = True
     ftm_detail_info_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-    # Bagian atas: 2 gambar
     ftm_detail_top_table = ftm_detail_cell.add_table(rows=1, cols=2)
     ftm_detail_top_table.style = 'Table Grid'
     ftm_detail_top_table.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -325,7 +314,6 @@ def generate_word_document(form_data, uploaded_files):
         row.cells[0].width = Cm(6.5)
         row.cells[1].width = Cm(6.5)
 
-    # Bagian bawah: 3 gambar
     ftm_detail_bottom_table = ftm_detail_cell.add_table(rows=1, cols=3)
     ftm_detail_bottom_table.style = 'Table Grid'
     for row in ftm_detail_bottom_table.rows:
@@ -333,8 +321,6 @@ def generate_word_document(form_data, uploaded_files):
         row.cells[1].width = Cm(5.9)
         row.cells[2].width = Cm(5.9)
 
-    
-    # === Daftar gambar ===
     ftm_detail_images = [
         ('foto_ftm_detail_1', 'no_lemari_ftm'),
         ('foto_ftm_detail_2', 'keterangan_ftm_detail_2'),
@@ -346,40 +332,33 @@ def generate_word_document(form_data, uploaded_files):
     for i in range(2):
         img_key, text_key = ftm_detail_images[i]
         cell = ftm_detail_top_table.cell(0, i)
-        cell.text = ""  # kosongkan biar gak ada paragraf default
+        cell.text = ""
 
-        # bikin nested table di dalam cell utama
         nested = cell.add_table(rows=2, cols=1)
         nested.autofit = False
         nested.alignment = WD_TABLE_ALIGNMENT.CENTER
 
-        # baris gambar
         img_cell = nested.cell(0, 0)
         if uploaded_files.get(img_key):
             add_image_to_cell(img_cell, uploaded_files.get(img_key))
 
-        # baris teks
         text_cell = nested.cell(1, 0)
         add_label_box(text_cell, form_data.get(text_key))
         set_cell_margin(cell, bottom=50)
         
-        # === Masukkan gambar ke tabel bawah (3 gambar) ===
     for i in range(3):
         img_key, text_key = ftm_detail_images[i+2]
         cell = ftm_detail_bottom_table.cell(0, i)
-        cell.text = ""  # kosongkan biar gak ada paragraf default
+        cell.text = ""
 
-        # bikin nested table di dalam cell utama
         nested = cell.add_table(rows=2, cols=1)
         nested.autofit = False
         nested.alignment = WD_TABLE_ALIGNMENT.CENTER
 
-        # baris gambar
         img_cell = nested.cell(0, 0)
         if uploaded_files.get(img_key):
             add_image_to_cell(img_cell, uploaded_files.get(img_key))
 
-        # baris teks
         text_cell = nested.cell(1, 0)
         add_label_box(text_cell, form_data.get(text_key))
         set_cell_margin(cell, bottom=50)
@@ -389,9 +368,7 @@ def generate_word_document(form_data, uploaded_files):
     odc_para = odc_cell.paragraphs[0]
     odc_para.clear()
 
-
-    # ODC Info
-    odc_info_table =  odc_cell.add_table(rows=1, cols=1)
+    odc_info_table = odc_cell.add_table(rows=1, cols=1)
     odc_info_table.style = 'Table Grid'
     odc_info_cell = odc_info_table.cell(0, 0)
     odc_info_table.autofit =False
@@ -406,7 +383,6 @@ def generate_word_document(form_data, uploaded_files):
     odc_info_para.add_run(f"\n{form_data.get('lokasi_odc')}").bold = True
     odc_info_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-    # Bagian atas: 2 gambar
     odc_top_table = odc_cell.add_table(rows=1, cols=2)
     odc_top_table.style = 'Table Grid'
     odc_top_table.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -414,7 +390,6 @@ def generate_word_document(form_data, uploaded_files):
         row.cells[0].width = Cm(6)
         row.cells[1].width = Cm(6.5)
 
-    # Bagian bawah: 3 gambar
     odc_bottom_table = odc_cell.add_table(rows=1, cols=3)
     odc_bottom_table.style = 'Table Grid'
     for row in odc_bottom_table.rows:
@@ -430,33 +405,12 @@ def generate_word_document(form_data, uploaded_files):
         ('foto_odc_5', ('hasil_ukur', 'feeder'))
     ]
     
-    # === Masukkan gambar ke tabel atas (2 gambar) ===
     for i in range(2):
         img_key, text_keys = odc_images[i]
         cell = odc_top_table.cell(0, i)
         cell.text = ""
 
-        nested = cell.add_table(rows=2, cols=1)  # harus 2 baris (gambar + teks)
-        nested.autofit = False
-        nested.alignment = WD_TABLE_ALIGNMENT.CENTER
-
-        img_cell = nested.cell(0, 0)
-        if uploaded_files.get(img_key):
-            add_image_to_cell(img_cell, uploaded_files.get(img_key))
-
-        text_cell = nested.cell(1, 0)
-        for text_key in text_keys:   # loop karena text_keys tuple
-            add_label_box(text_cell, form_data.get(text_key, ""))
-            set_cell_margin(cell, bottom=50)
-
-
-    # === Masukkan gambar ke tabel bawah (3 gambar) ===
-    for i in range(3):
-        img_key, text_keys = odc_images[i+2]
-        cell = odc_bottom_table.cell(0, i)
-        cell.text = ""
-
-        nested = cell.add_table(rows=2, cols=1)  # sama, 2 baris
+        nested = cell.add_table(rows=2, cols=1)
         nested.autofit = False
         nested.alignment = WD_TABLE_ALIGNMENT.CENTER
 
@@ -469,11 +423,25 @@ def generate_word_document(form_data, uploaded_files):
             add_label_box(text_cell, form_data.get(text_key, ""))
             set_cell_margin(cell, bottom=50)
 
+    for i in range(3):
+        img_key, text_keys = odc_images[i+2]
+        cell = odc_bottom_table.cell(0, i)
+        cell.text = ""
 
+        nested = cell.add_table(rows=2, cols=1)
+        nested.autofit = False
+        nested.alignment = WD_TABLE_ALIGNMENT.CENTER
 
-    ####################################
-    
-    # PAGE 3 - SPL & ODP (Landscape optimized)
+        img_cell = nested.cell(0, 0)
+        if uploaded_files.get(img_key):
+            add_image_to_cell(img_cell, uploaded_files.get(img_key))
+
+        text_cell = nested.cell(1, 0)
+        for text_key in text_keys:
+            add_label_box(text_cell, form_data.get(text_key, ""))
+            set_cell_margin(cell, bottom=50)
+
+    # PAGE 3 - SPL & ODP
     add_page_break(doc)
     
     page3_table = doc.add_table(rows=1, cols=2)
@@ -488,7 +456,6 @@ def generate_word_document(form_data, uploaded_files):
     left_para = left_cell.paragraphs[0]
     left_para.clear()
 
-    # Info ODC
     odc_info_table = left_cell.add_table(rows=1, cols=1)
     odc_info_table.style = 'Table Grid'
     odc_cell_inner = odc_info_table.cell(0, 0)
@@ -504,7 +471,6 @@ def generate_word_document(form_data, uploaded_files):
     odc_para.add_run(f"\n{form_data.get('lokasi_odc_hal3')}").bold = True
     odc_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-    # Foto SPL/ODC (2x2 grid)
     spl_img_table = left_cell.add_table(rows=2, cols=2)
     spl_img_table.style = 'Table Grid'
     spl_img_table.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -518,35 +484,31 @@ def generate_word_document(form_data, uploaded_files):
         ('foto_out', ('in_out', 'keterangan_out')),
         ('foto_port', ('keterangan_port','keterangan_core'))
     ]
+    
+    positions = [(0, 0), (0, 1), (1, 0), (1, 1)]
     for i, (img_key, text_keys) in enumerate(spl_images):
         row, col = positions[i]
         cell = spl_img_table.cell(row, col)
         cell.text = ""
         
-        # Buat nested table
         nested = cell.add_table(rows=2, cols=1)
         nested.autofit = False
         nested.alignment = WD_TABLE_ALIGNMENT.CENTER
         
-        # Gambar
         img_cell = nested.cell(0, 0)
         if uploaded_files.get(img_key):
             add_image_to_cell(img_cell, uploaded_files.get(img_key))
         
-        # Text labels
         text_cell = nested.cell(1, 0)
         for text_key in text_keys:
             add_label_box(text_cell, form_data.get(text_key, ""))
         
         set_cell_margin(cell, bottom=50)
 
-
-    # ---------------- KANAN : ODP ---------------- 
     right_cell = page3_table.cell(0, 1)
     right_para = right_cell.paragraphs[0]
     right_para.clear()
 
-    # Info ODP
     odp_info_table = right_cell.add_table(rows=1, cols=1)
     odp_info_table.style = 'Table Grid'
     odp_cell_inner = odp_info_table.cell(0, 0)
@@ -562,7 +524,6 @@ def generate_word_document(form_data, uploaded_files):
     odp_para.add_run(f"\n{form_data.get('koordinat_odp_hal3')}").bold = True
     odp_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-    # Foto ODP & lainnya (3x2 grid)
     odp_img_table = right_cell.add_table(rows=2, cols=3)
     odp_img_table.style = 'Table Grid'
     odp_img_table.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -586,24 +547,21 @@ def generate_word_document(form_data, uploaded_files):
         cell = odp_img_table.cell(row, col)
         cell.text = ""
         
-        # Buat nested table
         nested = cell.add_table(rows=2, cols=1)
         nested.autofit = False
         nested.alignment = WD_TABLE_ALIGNMENT.CENTER
         
-        # Gambar
         img_cell = nested.cell(0, 0)
         if uploaded_files.get(img_key):
             add_image_to_cell(img_cell, uploaded_files.get(img_key))
         
-        # Text labels
         text_cell = nested.cell(1, 0)
         for text_key in text_keys:
             add_label_box(text_cell, form_data.get(text_key, ""))
         
         set_cell_margin(cell, bottom=50)
 
-    # PAGE 4 - 8 PORT (Landscape optimized - 4x2 layout)
+    # PAGE 4 - 8 PORT
     add_page_break(doc)
 
     page4_table = doc.add_table(rows=2, cols=1)
@@ -622,7 +580,6 @@ def generate_word_document(form_data, uploaded_files):
     odp4_info_cell.width = Cm(8)
     odp4_info_table.alignment = WD_TABLE_ALIGNMENT.CENTER
     
-    # ODP Info for page 4
     odp4_info = odp4_info_cell.paragraphs[0]
     odp4_info.add_run(f"{form_data.get('odp_hal4','')}").bold = True
     odp4_info.add_run(f"\n{form_data.get('odp1_hal4','')}").bold = True
@@ -638,7 +595,6 @@ def generate_word_document(form_data, uploaded_files):
             cell.width = Cm(8)
     port_table.alignment = WD_TABLE_ALIGNMENT.CENTER
     
-    # All 8 port images
     port_images = [
         ('foto_port_1', 'keterangan_port_1'),
         ('foto_port_2', 'keterangan_port_2'),
@@ -655,22 +611,18 @@ def generate_word_document(form_data, uploaded_files):
         row, col = positions[i]
         cell = port_table.cell(row, col)
 
-        # Tambah gambar jika ada
         if uploaded_files.get(img_key):
             add_image_to_cell(cell, uploaded_files.get(img_key), width=Inches(2.0))
 
-        # Tambah caption teks + label port
         caption = form_data.get(text_key, '')
         add_label_box(cell, caption)
 
-        # Tambah margin bawah
         set_cell_margin(cell, bottom=50)
 
-    
-    # PAGE 5 - DOCUMENTATION (Landscape optimized)
+    # PAGE 5 - DOCUMENTATION
     add_page_break(doc)
     pa = doc.add_paragraph()
-    pa.paragraph_format.space_after = Cm (0.5)
+    pa.paragraph_format.space_after = Cm(0.5)
     
     doc_images = [
         'foto_dok_1',
@@ -685,18 +637,17 @@ def generate_word_document(form_data, uploaded_files):
             run = p.add_run()
             run.add_picture(uploaded_files[img_key], height=Inches(2.7))
     
-    # PAGE 6 - DENAH LOKASI (Landscape optimized)
+    # PAGE 6 - DENAH LOKASI
     add_page_break(doc)
     para = doc.add_paragraph()
     para.paragraph_format.space_before = Cm(1.5)
     
-    # Denah image - larger for landscape
     if uploaded_files.get('foto_denah'):
         denah_para = doc.add_paragraph()
         denah_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
         denah_run = denah_para.add_run()
         try:
-            denah_run.add_picture(uploaded_files.get('foto_denah'), width=Inches(13))  # Larger for landscape
+            denah_run.add_picture(uploaded_files.get('foto_denah'), width=Inches(13))
         except Exception as e:
             denah_para.text = f"Error loading denah image: {str(e)}"
     else:
@@ -709,7 +660,6 @@ def generate_word_document(form_data, uploaded_files):
 def index():
     """Main page"""
     return render_template("index_v7.html")
-
 
 @app.route('/generate', methods=['POST'])
 def generate_report():
@@ -734,25 +684,20 @@ def generate_report():
             flash('Harap upload minimal satu foto!', 'error')
             return redirect(url_for('index'))
         
-        # Generate Word document in landscape
         doc = generate_word_document(form_data, uploaded_files)
         
-        # Save document to temporary file
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         report_filename = f"Laporan_Evidence_Landscape_{form_data.get('judul_laporan', 'Report')}_{timestamp}.docx"
         
-        # Create temporary file for the document
         with tempfile.NamedTemporaryFile(delete=False, suffix='.docx') as tmp_file:
             doc.save(tmp_file.name)
             
-            # Clean up uploaded files
             for temp_file in temp_files:
                 try:
                     os.remove(temp_file)
                 except:
                     pass
             
-            # Return the file
             return send_file(
                 tmp_file.name,
                 as_attachment=True,
@@ -761,7 +706,6 @@ def generate_report():
             )
     
     except Exception as e:
-        # Clean up uploaded files in case of error
         for temp_file in temp_files:
             try:
                 os.remove(temp_file)
@@ -772,5 +716,6 @@ def generate_report():
         return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
-                
+    # Use PORT from environment variable (Railway provides this)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
