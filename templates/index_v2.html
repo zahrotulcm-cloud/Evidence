@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Laporan Evidence PT Telkom</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #1f2937;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #E42313 0%, #c41d10 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .header img.logo {
+            height: 90px;
+            width: auto;
+            filter: brightness(0) invert(1);
+        }
+
+        .header-text h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header-text p {
+            font-size: 15px;
+            opacity: 0.95;
+        }
+
+        .form-container {
+            padding: 40px 35px;
+        }
+
+        .form-section {
+            margin-bottom: 35px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .form-section:hover {
+            border-color: #E42313;
+            box-shadow: 0 4px 12px rgba(228, 35, 19, 0.1);
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #E42313 0%, #c41d10 100%);
+            color: #fff;
+            padding: 16px 22px;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header::before {
+            content: '📋';
+            font-size: 20px;
+        }
+
+        .section-content {
+            padding: 30px 25px;
+            background: #fafafa;
+        }
+
+        .page-title {
+            font-size: 18px;
+            color: #E42313;
+            margin: 30px 0 20px 0;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-align: center;
+            padding: 12px;
+            background: linear-gradient(to right, transparent, rgba(228, 35, 19, 0.1), transparent);
+            border-left: 4px solid #E42313;
+            border-right: 4px solid #E42313;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 15px;
+            align-items: start;
+        }
+
+        .form-group.horizontal {
+            align-items: center;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            font-size: 14px;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .auto-badge {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 11px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fff;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            border-color: #E42313;
+            box-shadow: 0 0 0 3px rgba(228, 35, 19, 0.1);
+            outline: none;
+            background: #fff;
+        }
+
+        .form-control::placeholder {
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        .flex-inputs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .flex-inputs input {
+            flex: 1;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border: 2px dashed #9ca3af;
+            border-radius: 8px;
+            background: #f9fafb;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #6b7280;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .file-input-label:hover {
+            border-color: #E42313;
+            background: #fef2f2;
+            color: #E42313;
+        }
+
+        .file-input-label.selected {
+            border-color: #10b981;
+            background: #ecfdf5;
+            color: #065f46;
+            border-style: solid;
+        }
+
+        .file-preview {
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        .file-preview img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border: 3px solid #fff;
+        }
+
+        .submit-section {
+            text-align: center;
+            padding: 35px;
+            background: linear-gradient(to bottom, #fafafa, #f3f4f6);
+            border-top: 2px solid #e5e7eb;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #E42313 0%, #c41d10 100%);
+            color: white;
+            padding: 16px 48px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(228, 35, 19, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(228, 35, 19, 0.4);
+        }
+
+        .btn-submit:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-left: 4px solid #3b82f6;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            color: #1e40af;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 0 10px;
+                border-radius: 12px;
+            }
+
+            .form-container {
+                padding: 25px 20px;
+            }
+
+            .section-content {
+                padding: 20px 15px;
+            }
+
+            .form-group.horizontal {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .header img.logo {
+                height: 70px;
+            }
+
+            .header-text h1 {
+                font-size: 22px;
+            }
+        }
+
+        .progress-indicator {
+            margin-top: 15px;
+            color: #6b7280;
+            font-size: 13px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <img src="https://www.telkom.co.id/minio/show/data/image_upload/page/1594108255409_compress_logo%20telkom%20indonesia.png" 
+                alt="Logo Telkom" class="logo">
+                <div class="header-text">
+                    <h1>GENERATOR LAPORAN EVIDENCE</h1>
+                    <p>PT Telkom Indonesia - Sistem Dokumentasi Teknis</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-container">
+            <form action="/generate" method="post" enctype="multipart/form-data" id="evidenceForm">
+                
+                <!-- Judul Laporan -->
+                <div class="form-section">
+                    <div class="section-header">INFORMASI LAPORAN</div>
+                    <div class="section-content">
+                        <div class="form-group horizontal">
+                            <label for="judul_laporan">Judul Laporan</label>
+                            <input type="text" class="form-control" id="judul_laporan" name="judul_laporan" 
+                                placeholder="Contoh: PT2_ODP-KLJ-FCT-120" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HALAMAN 1 -->
+                <div class="form-section">
+                    <div class="section-header">HALAMAN 1 - DATA GPON & FTM</div>
+                    <div class="section-content">
+                        
+                        <div class="form-group horizontal">
+                            <label for="sto_gpon">STO</label>
+                            <input type="text" class="form-control" id="sto_gpon" name="sto_gpon" placeholder="STO KLOJEN" required>
+                        </div>
+                        
+                        <div class="form-group horizontal">
+                            <label for="ruangan_gpon">Ruangan</label>
+                            <input type="text" class="form-control" id="ruangan_gpon" name="ruangan_gpon" placeholder="RUANG GPON" required>
+                        </div>
+                    
+                        <div class="form-group horizontal">
+                            <label for="koordinat_gpon">Koordinat</label>
+                            <input type="text" class="form-control" id="koordinat_gpon" name="koordinat_gpon" placeholder="-7.964470° 112.615930°" required>
+                        </div>
+                
+                        <div class="form-group horizontal">
+                            <label for="IP_Address">IP Address</label>
+                            <input type="text" class="form-control" id="IP_Address" name="IP_Address" placeholder="172.23.226.163" required>
+                        </div>
+                
+                        <div class="form-group">
+                            <label for="foto_gpon_1">📷 Foto GPON 1</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_gpon_1" name="foto_gpon_1" accept="image/*" required>
+                                <label for="foto_gpon_1" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto GPON 1</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_gpon_1"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="lemari_gpon">Lemari GPON</label>
+                            <input type="text" class="form-control number-only" id="lemari_gpon" name="lemari_gpon" placeholder="5" required>
+                        </div>
+                    
+                        <div class="form-group">
+                            <label for="foto_gpon_2">📷 Foto GPON 2</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_gpon_2" name="foto_gpon_2" accept="image/*" required>
+                                <label for="foto_gpon_2" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto GPON 2</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_gpon_2"></div>
+                            </div>
+                        </div>
+                    
+                        <div class="form-group horizontal">
+                            <label for="keterangan_gpon_2">Keterangan GPON</label>
+                            <input type="text" class="form-control" id="keterangan_gpon_2" name="keterangan_gpon_2" placeholder="172.23.226.163" required>
+                        </div>
+                    
+                        <div class="form-group">
+                            <label for="foto_gpon_3">📷 Foto GPON 3</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_gpon_3" name="foto_gpon_3" accept="image/*" required>
+                                <label for="foto_gpon_3" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto GPON 3</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_gpon_3"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="card_gpon">Card GPON</label>
+                            <input type="text" class="form-control number-only" id="card_gpon" name="card_gpon" placeholder="01" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_gpon_4">📷 Foto GPON 4</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_gpon_4" name="foto_gpon_4" accept="image/*" required>
+                                <label for="foto_gpon_4" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto GPON 4</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_gpon_4"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="port_gpon">Port GPON</label>
+                            <input type="text" class="form-control number-only" id="port_gpon" name="port_gpon" placeholder="14" required>
+                        </div>
+
+                        <div class="page-title">📍 Data FTM</div>
+                        
+                        <div class="form-group horizontal">
+                            <label for="ruangan_ftm">Ruangan</label>
+                            <input type="text" class="form-control" id="ruangan_ftm" name="ruangan_ftm" placeholder="RUANG FTM" required>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="koordinat_ftm">Koordinat FTM</label>
+                            <input type="text" class="form-control" id="koordinat_ftm" name="koordinat_ftm" placeholder="-7.964470° 112.615930°" required>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="kode_ftm">Kode FTM</label>
+                            <input type="text" class="form-control" id="kode_ftm" name="kode_ftm" placeholder="FTM-KLJ-EA-03" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_ftm_1">📷 Foto Lemari FTM</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_ftm_1" name="foto_ftm_1" accept="image/*" required>
+                                <label for="foto_ftm_1" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto Lemari FTM</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_ftm_1"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="lemari_ftm">Lemari FTM</label>
+                            <input type="text" class="form-control" id="lemari_ftm" name="lemari_ftm" placeholder="02" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_ftm_2">📷 Foto FTM 2</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_ftm_2" name="foto_ftm_2" accept="image/*" required>
+                                <label for="foto_ftm_2" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto FTM 2</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_ftm_2"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="keterangan_ftm_2">Kode FTM</label>
+                            <input type="text" class="form-control" id="keterangan_ftm_2" name="keterangan_ftm_2" placeholder="FTM-KLJ-EA-03" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_ftm_3">📷 Foto OTB</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_ftm_3" name="foto_ftm_3" accept="image/*" required>
+                                <label for="foto_ftm_3" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto OTB</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_ftm_3"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="otb_ftm">No OTB</label>
+                            <input type="text" class="form-control number-only" id="otb_ftm" name="otb_ftm" placeholder="05" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_ftm_4">📷 Foto Slot & Port</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_ftm_4" name="foto_ftm_4" accept="image/*" required>
+                                <label for="foto_ftm_4" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto Slot & Port</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_ftm_4"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label>Slot & Port FTM</label>
+                            <div class="flex-inputs">
+                                <input type="text" class="form-control" id="slot_ftm" name="slot_ftm" placeholder="Slot: 5" required>
+                                <input type="text" class="form-control" id="port_ftm" name="port_ftm" placeholder="Port: 2(14)" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HALAMAN 2 -->
+                <div class="form-section">
+                    <div class="section-header">HALAMAN 2 - DETAIL FTM & ODC</div>
+                    <div class="section-content">
+                        
+                        <div class="form-group horizontal">
+                            <label for="ruang_ftm">Ruang FTM</label>
+                            <input type="text" class="form-control" id="ruang_ftm" name="ruang_ftm" placeholder="RUANG FTM" required>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="koordinat_ftm_detail">Koordinat FTM</label>
+                            <input type="text" class="form-control" id="koordinat_ftm_detail" name="koordinat_ftm_detail" placeholder="-7.964470° 112.615930°" required>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="kode_ftm_detail">Kode FTM</label>
+                            <input type="text" class="form-control" id="kode_ftm_detail" name="kode_ftm_detail" placeholder="FTM-KLJ-OA-03" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_ftm_detail_1">📷 Foto FTM 1</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_ftm_detail_1" name="foto_ftm_detail_1" accept="image/*" required>
+                                <label for="foto_ftm_detail_1" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto FTM Detail 1</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_ftm_detail_1"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="no_lemari_ftm">Lemari FTM</label>
+                            <input type="text" class="form-control number-only" id="no_lemari_ftm" name="no_lemari_ftm" placeholder="5" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_ftm_detail_2">📷 Foto FTM 2</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_ftm_detail_2" name="foto_ftm_detail_2" accept="image/*" required>
+                                <label for="foto_ftm_detail_2" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto FTM Detail 2</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_ftm_detail_2"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="keterangan_ftm_detail_2">Kode FTM</label>
+                            <input type="text" class="form-control" id="keterangan_ftm_detail_2" name="keterangan_ftm_detail_2" placeholder="FTM-KLJ-OA-03" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_ftm_detail_3">📷 Foto FTM 3</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_ftm_detail_3" name="foto_ftm_detail_3" accept="image/*" required>
+                                <label for="foto_ftm_detail_3" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto FTM Detail 3</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_ftm_detail_3"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="no_otb">No OTB</label>
+                            <input type="text" class="form-control number-only" id="no_otb" name="no_otb" placeholder="04" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_ftm_detail_4">📷 Foto FTM 4</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_ftm_detail_4" name="foto_ftm_detail_4" accept="image/*" required>
+                                <label for="foto_ftm_detail_4" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto FTM Detail 4</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_ftm_detail_4"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="no_panel">No Panel</label>
+                            <input type="text" class="form-control number-only" id="no_panel" name="no_panel" placeholder="4" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_ftm_detail_5">📷 Foto FTM 5</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_ftm_detail_5" name="foto_ftm_detail_5" accept="image/*" required>
+                                <label for="foto_ftm_detail_5" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto FTM Detail 5</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_ftm_detail_5"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label>Port & Core</label>
+                            <div class="flex-inputs">
+                                <input type="text" class="form-control" id="port_no" name="port_no" placeholder="Port: 3" required>
+                                <input type="text" class="form-control" id="core_no" name="core_no" placeholder="Core: 21" required>
+                            </div>
+                        </div>
+                        
+                        <div class="page-title">📍 Data ODC</div>
+
+                        <div class="form-group horizontal">
+                            <label for="odc_nama">Kode ODC</label>
+                            <input type="text" class="form-control" id="odc_nama" name="odc_nama" placeholder="ODC-KLJ-FCT" required>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="kode_odc">Detail ODC</label>
+                            <input type="text" class="form-control" id="kode_odc" name="kode_odc" placeholder="ODC-C-288" required>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="koordinat_odc">Koordinat ODC</label>
+                            <input type="text" class="form-control" id="koordinat_odc" name="koordinat_odc" placeholder="-7.938920°, 112.592700°" required>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="lokasi_odc">Lokasi ODC</label>
+                            <input type="text" class="form-control" id="lokasi_odc" name="lokasi_odc" placeholder="JL. JOYO AGUNG" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_odc_1">📷 Foto ODC 1</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_odc_1" name="foto_odc_1" accept="image/*" required>
+                                <label for="foto_odc_1" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto ODC 1</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_odc_1"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="keterangan_odc_1">Keterangan ODC 1</label>
+                            <input type="text" class="form-control" id="keterangan_odc_1" name="keterangan_odc_1" placeholder="ODC-KLJ-FCT" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_odc_2">📷 Foto ODC Full Tray</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_odc_2" name="foto_odc_2" accept="image/*" required>
+                                <label for="foto_odc_2" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto ODC Full Tray</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_odc_2"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="keterangan_odc_2">Keterangan</label>
+                            <input type="text" class="form-control" id="keterangan_odc_2" name="keterangan_odc_2" value="FULL TRAY" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_odc_3">📷 Foto ODC IN</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_odc_3" name="foto_odc_3" accept="image/*" required>
+                                <label for="foto_odc_3" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto ODC IN</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_odc_3"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="no_in_tray">Keterangan</label>
+                            <input type="text" class="form-control" id="no_in_tray" name="no_in_tray" value="IN" readonly>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="no_tray">No Tray</label>
+                            <input type="text" class="form-control number-only" id="no_tray" name="no_tray" placeholder="2" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_odc_4">📷 Foto ODC Port & Core</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_odc_4" name="foto_odc_4" accept="image/*" required>
+                                <label for="foto_odc_4" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto ODC Port & Core</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_odc_4"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="no_port_core_odc">No Port ODC</label>
+                            <input type="text" class="form-control number-only" id="no_port_core_odc" name="no_port_core_odc" placeholder="2" required>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="no_core_port_odc">No Core ODC</label>
+                            <input type="text" class="form-control number-only" id="no_core_port_odc" name="no_core_port_odc" placeholder="2" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_odc_5">📷 Foto ODC Hasil Ukur</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_odc_5" name="foto_odc_5" accept="image/*" required>
+                                <label for="foto_odc_5" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto ODC Hasil Ukur</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_odc_5"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="hasil_ukur">Keterangan</label>
+                            <input type="text" class="form-control" id="hasil_ukur" name="hasil_ukur" value="HASIL UKUR" readonly>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="feeder">Detail</label>
+                            <input type="text" class="form-control" id="feeder" name="feeder" value="FEEDER" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HALAMAN 3 -->
+                <div class="form-section">
+                    <div class="section-header">HALAMAN 3 - SPL & ODP</div>
+                    <div class="section-content">
+
+                        <div class="form-group horizontal">
+                            <label for="odc_hal3">Kode ODC</label>
+                            <input type="text" class="form-control" id="odc_hal3" name="odc_hal3" placeholder="ODC-KLJ-FCT" required>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="detail_odc_hal3">Detail ODC</label>
+                            <input type="text" class="form-control" id="detail_odc_hal3" name="detail_odc_hal3" placeholder="ODC-C-288" required>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="koordinat_odc_hal3">Koordinat ODC</label>
+                            <input type="text" class="form-control" id="koordinat_odc_hal3" name="koordinat_odc_hal3" placeholder="-7.938920°, 112.592700°" required>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="lokasi_odc_hal3">Lokasi ODC</label>
+                            <input type="text" class="form-control" id="lokasi_odc_hal3" name="lokasi_odc_hal3" placeholder="JL. JOYO AGUNG" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_spl_1">📷 Foto SPL 1</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_spl_1" name="foto_spl_1" accept="image/*" required>
+                                <label for="foto_spl_1" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto SPL 1</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_spl_1"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="keterangan_spl_1">Keterangan</label>
+                            <input type="text" class="form-control" id="keterangan_spl_1" name="keterangan_spl_1" value="SPL" readonly>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="spl_1">Kode SPL</label>
+                            <input type="text" class="form-control" id="spl_1" name="spl_1" placeholder="SPL-C.1-01" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_spl_2">📷 Foto Hasil Ukur SPL</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_spl_2" name="foto_spl_2" accept="image/*" required>
+                                <label for="foto_spl_2" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto SPL 2</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_spl_2"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="ukur_spl">Keterangan</label>
+                            <input type="text" class="form-control" id="ukur_spl" name="ukur_spl" value="SPL" readonly>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="hasil_ukur_spl">Detail</label>
+                            <input type="text" class="form-control" id="hasil_ukur_spl" name="hasil_ukur_spl" value="HASIL UKUR" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_out">📷 Foto OUT</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_out" name="foto_out" accept="image/*" required>
+                                <label for="foto_out" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto OUT</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_out"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="in_out">Keterangan</label>
+                            <input type="text" class="form-control" id="in_out" name="in_out" value="OUT" readonly>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="keterangan_out">No Tray</label>
+                            <input type="text" class="form-control number-only" id="keterangan_out" name="keterangan_out" placeholder="13" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_port">📷 Foto Port & Core</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_port" name="foto_port" accept="image/*" required>
+                                <label for="foto_port" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto Port & Core</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_port"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="keterangan_port">No PORT</label>
+                            <input type="text" class="form-control number-only" id="keterangan_port" name="keterangan_port" placeholder="1" required>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="keterangan_core">No Core</label>
+                            <input type="text" class="form-control number-only" id="keterangan_core" name="keterangan_core" placeholder="13" required>
+                        </div>
+
+                        <div class="page-title">📍 Data ODP</div>
+
+                        <div class="form-group horizontal">
+                            <label for="odp_hal3">Kode ODP</label>
+                            <input type="text" class="form-control" id="odp_hal3" name="odp_hal3" placeholder="ODP-KLJ-FCT/120" required>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="detail_odp_hal3">Detail ODP</label>
+                            <input type="text" class="form-control" id="detail_odp_hal3" name="detail_odp_hal3" placeholder="FCT/D04/120.01" required>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="lokasi_odp_hal3">Lokasi ODP</label>
+                            <input type="text" class="form-control" id="lokasi_odp_hal3" name="lokasi_odp_hal3" placeholder="PERUM BRAWIJAYA RESIDEN" required>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="koordinat_odp_hal3">Koordinat ODP</label>
+                            <input type="text" class="form-control" id="koordinat_odp_hal3" name="koordinat_odp_hal3" placeholder="-7.937579°,112.591336°" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_odp_1">📷 Foto ODP Sebelum</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_odp_1" name="foto_odp_1" accept="image/*" required>
+                                <label for="foto_odp_1" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto ODP Sebelum</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_odp_1"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="keterangan_odp_1">Keterangan</label>
+                            <input type="text" class="form-control" id="keterangan_odp_1" name="keterangan_odp_1" placeholder="ODP-KLJ-FCT/120" required>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="keterangan_odp_12">Detail</label>
+                            <input type="text" class="form-control" id="keterangan_odp_12" name="keterangan_odp_12" value="SEBELUM" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_odp_2">📷 Foto ODP Sesudah</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_odp_2" name="foto_odp_2" accept="image/*" required>
+                                <label for="foto_odp_2" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto ODP Sesudah</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_odp_2"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="keterangan_odp_2">Keterangan</label>
+                            <input type="text" class="form-control" id="keterangan_odp_2" name="keterangan_odp_2" placeholder="ODP-KLJ-FCT/120" required>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="keterangan_odp_21">Detail</label>
+                            <input type="text" class="form-control" id="keterangan_odp_21" name="keterangan_odp_21" placeholder="DS04(10,13)" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_spl_3">📷 Foto SPL 3</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_spl_3" name="foto_spl_3" accept="image/*" required>
+                                <label for="foto_spl_3" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto SPL 3</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_spl_3"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="keterangan_spl_3">Keterangan</label>
+                            <input type="text" class="form-control" id="keterangan_spl_3" name="keterangan_spl_3" value="SPL" readonly>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="keterangan_spl_31">Kode SPL</label>
+                            <input type="text" class="form-control" id="keterangan_spl_31" name="keterangan_spl_31" placeholder="SPL-B.1-35" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_qr_1">📷 Foto QR Code</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_qr_1" name="foto_qr_1" accept="image/*" required>
+                                <label for="foto_qr_1" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto QR Code 1</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_qr_1"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="keterangan_qr_1">Keterangan</label>
+                            <input type="text" class="form-control" id="keterangan_qr_1" name="keterangan_qr_1" value="QR CODE" readonly>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="keterangan_qr_12">Kode QR</label>
+                            <input type="text" class="form-control" id="keterangan_qr_12" name="keterangan_qr_12" placeholder="T3P0H26EDSRC" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_qr_2">📷 Foto QR Code Port</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_qr_2" name="foto_qr_2" accept="image/*" required>
+                                <label for="foto_qr_2" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto QR Code Port</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_qr_2"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="keterangan_qr_2">Keterangan</label>
+                            <input type="text" class="form-control" id="keterangan_qr_2" name="keterangan_qr_2" value="QR CODE PORT" readonly>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="keterangan_qr_21">Kode QR Port</label>
+                            <input type="text" class="form-control" id="keterangan_qr_21" name="keterangan_qr_21" placeholder="T3P07D7TRDUH" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_valin">📷 Foto VALIN ID</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_valin" name="foto_valin" accept="image/*" required>
+                                <label for="foto_valin" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto VALIN ID</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_valin"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="keterangan_valin">Keterangan</label>
+                            <input type="text" class="form-control" id="keterangan_valin" name="keterangan_valin" value="VALIN ID" readonly>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="keterangan_valin1">ID VALIN</label>
+                            <input type="text" class="form-control" id="keterangan_valin1" name="keterangan_valin1" placeholder="31580397" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HALAMAN 4 -->
+                <div class="form-section">
+                    <div class="section-header">HALAMAN 4 - FOTO PORT (1-8)</div>
+                    <div class="section-content">
+                        <div class="info-box">
+                            <strong>ℹ️ Informasi Upload Foto Port</strong>
+                            Upload foto port sesuai urutan 1-8. Keterangan port akan otomatis terisi sesuai nomor urut.
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="odp_hal4">Kode ODP</label>
+                            <input type="text" class="form-control" id="odp_hal4" name="odp_hal4" placeholder="ODP-KLJ-FCT/120" required>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="odp1_hal4">Detail ODP</label>
+                            <input type="text" class="form-control" id="odp1_hal4" name="odp1_hal4" placeholder="FCT/D04/120.01" required>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="lokasi_odp_hal4">Lokasi ODP</label>
+                            <input type="text" class="form-control" id="lokasi_odp_hal4" name="lokasi_odp_hal4" placeholder="PERUM BRAWIJAYA RESIDEN" required>
+                        </div>
+
+                        <div class="form-group horizontal">
+                            <label for="detail_odp_hal4">Koordinat ODP</label>
+                            <input type="text" class="form-control" id="detail_odp_hal4" name="detail_odp_hal4" placeholder="-7.937579°,112.591336°" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_port_1">📷 Foto Port 1</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_port_1" name="foto_port_1" accept="image/*" required>
+                                <label for="foto_port_1" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto Port 1</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_port_1"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_port_2">📷 Foto Port 2</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_port_2" name="foto_port_2" accept="image/*" required>
+                                <label for="foto_port_2" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto Port 2</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_port_2"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_port_3">📷 Foto Port 3</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_port_3" name="foto_port_3" accept="image/*" required>
+                                <label for="foto_port_3" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto Port 3</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_port_3"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_port_4">📷 Foto Port 4</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_port_4" name="foto_port_4" accept="image/*" required>
+                                <label for="foto_port_4" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto Port 4</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_port_4"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_port_5">📷 Foto Port 5</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_port_5" name="foto_port_5" accept="image/*" required>
+                                <label for="foto_port_5" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto Port 5</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_port_5"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_port_6">📷 Foto Port 6</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_port_6" name="foto_port_6" accept="image/*" required>
+                                <label for="foto_port_6" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto Port 6</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_port_6"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_port_7">📷 Foto Port 7</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_port_7" name="foto_port_7" accept="image/*" required>
+                                <label for="foto_port_7" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto Port 7</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_port_7"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_port_8">📷 Foto Port 8</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_port_8" name="foto_port_8" accept="image/*" required>
+                                <label for="foto_port_8" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto Port 8</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_port_8"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HALAMAN 5 -->
+                <div class="form-section">
+                    <div class="section-header">HALAMAN 5 - DOKUMENTASI TAMBAHAN</div>
+                    <div class="section-content">
+                        
+                        <div class="form-group">
+                            <label for="foto_dok_1">Foto Dokumentasi 1</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_dok_1" name="foto_dok_1" accept="image/*" required>
+                                <label for="foto_dok_1" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto Dokumentasi 1</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_dok_1"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_dok_2">Foto Dokumentasi 2</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_dok_2" name="foto_dok_2" accept="image/*" required>
+                                <label for="foto_dok_2" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto Dokumentasi 2</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_dok_2"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foto_dok_3">Foto Dokumentasi 3</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_dok_3" name="foto_dok_3" accept="image/*" required>
+                                <label for="foto_dok_3" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto Dokumentasi 3</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_dok_3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HALAMAN 6 -->
+                <div class="form-section">
+                    <div class="section-header">HALAMAN 6 - DENAH LOKASI</div>
+                    <div class="section-content">
+                        
+                        <div class="form-group">
+                            <label for="foto_denah">Foto Denah Lokasi</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" class="file-input" id="foto_denah" name="foto_denah" accept="image/*" required>
+                                <label for="foto_denah" class="file-input-label">
+                                    <span>📁</span>
+                                    <span>Pilih Foto Denah Lokasi</span>
+                                </label>
+                                <div class="file-preview" id="preview_foto_denah"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Section -->
+                <div class="submit-section">
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        GENERATE LAPORAN WORD
+                    </button>
+                    <div class="progress-indicator" id="progressIndicator" style="display: none;">
+                        Sedang memproses laporan, mohon tunggu...
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // AUTO-FILL FUNCTIONALITY
+        // ========================================
+        const syncGroups = {
+            'ip': ['#IP_Address', '#keterangan_gpon_2'],
+            'ftm' : ['#ruangan_ftm', '#ruang_ftm'],
+            'koordinat-gpon': ['#koordinat_gpon', '#koordinat_ftm', '#koordinat_ftm_detail'],
+            'kode-ftm': ['#kode_ftm', '#keterangan_ftm_2',],
+            'ftm-kode': ['#kode_ftm_detail', '#keterangan_ftm_detail_2'],
+            'kode-odc': ['#odc_nama', '#keterangan_odc_1', '#odc_hal3'],
+            'detail-odc': ['#kode_odc', '#detail_odc_hal3'],
+            'koordinat-odc': ['#koordinat_odc', '#koordinat_odc_hal3'],
+            'lokasi-odc': ['#lokasi_odc', '#lokasi_odc_hal3'],
+            'kode-odp': ['#odp_hal3', '#odp_hal4', '#keterangan_odp_1', '#keterangan_odp_2'],
+            'detail-odp': ['#detail_odp_hal3', '#odp1_hal4'],
+            'lokasi-odp': ['#lokasi_odp_hal3', '#lokasi_odp_hal4'],
+            'koordinat-odp': ['#koordinat_odp_hal3', '#detail_odp_hal4']
+        };
+
+        // Setup auto-fill untuk setiap grup
+        Object.keys(syncGroups).forEach(groupName => {
+            const selectors = syncGroups[groupName];
+            const inputs = selectors.map(sel => document.querySelector(sel)).filter(el => el);
+            
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const value = this.value;
+                    inputs.forEach(otherInput => {
+                        if (otherInput !== this) {
+                            otherInput.value = value;
+                        }
+                    });
+                });
+            });
+        });
+
+        // ========================================
+        // NUMBER-ONLY INPUT VALIDATION
+        // ========================================
+        document.querySelectorAll('.number-only').forEach(input => {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+            
+            input.addEventListener('keypress', function(e) {
+                if (!/[0-9]/.test(e.key) && 
+                    !['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                    e.preventDefault();
+                }
+            });
+        });
+
+        // ========================================
+        // FILE INPUT HANDLING
+        // ========================================
+        document.querySelectorAll('.file-input').forEach(input => {
+            const label = input.nextElementSibling;
+            const originalText = label.innerHTML;
+            
+            input.addEventListener('change', function() {
+                if (this.files[0]) {
+                    const fileName = this.files[0].name;
+                    const displayName = fileName.length > 35 ? fileName.substring(0, 35) + '...' : fileName;
+                    label.innerHTML = `<span>✅</span><span>${displayName}</span>`;
+                    label.classList.add('selected');
+                } else {
+                    label.innerHTML = originalText;
+                    label.classList.remove('selected');
+                }
+            });
+        });
+
+        // ========================================
+        // IMAGE PREVIEW FUNCTIONALITY
+        // ========================================
+        const fotoIds = [
+            'foto_gpon_1', 'foto_gpon_2', 'foto_gpon_3', 'foto_gpon_4',
+            'foto_ftm_1', 'foto_ftm_2', 'foto_ftm_3', 'foto_ftm_4',
+            'foto_ftm_detail_1', 'foto_ftm_detail_2', 'foto_ftm_detail_3',
+            'foto_ftm_detail_4', 'foto_ftm_detail_5',
+            'foto_odc_1', 'foto_odc_2', 'foto_odc_3', 'foto_odc_4', 'foto_odc_5',
+            'foto_spl_1', 'foto_spl_2', 'foto_out', 'foto_port',
+            'foto_odp_1', 'foto_odp_2', 'foto_spl_3',
+            'foto_qr_1', 'foto_qr_2', 'foto_valin',
+            'foto_port_1', 'foto_port_2', 'foto_port_3', 'foto_port_4',
+            'foto_port_5', 'foto_port_6', 'foto_port_7', 'foto_port_8',
+            'foto_dok_1', 'foto_dok_2', 'foto_dok_3',
+            'foto_denah'
+        ];
+
+        fotoIds.forEach(id => {
+            const input = document.getElementById(id);
+            if (!input) return;
+
+            const previewDiv = document.getElementById(`preview_${id}`);
+
+            input.addEventListener('change', function() {
+                if (!previewDiv) return;
+                
+                previewDiv.innerHTML = '';
+                const file = this.files[0];
+                
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        previewDiv.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                } else if (file) {
+                    previewDiv.innerHTML = '<p style="color:#ef4444; font-size: 13px;">⚠️ File bukan gambar!</p>';
+                }
+            });
+        });
+
+        // ========================================
+        // FORM SUBMISSION HANDLING
+        // ========================================
+        document.getElementById('evidenceForm').addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submitBtn');
+            const progressIndicator = document.getElementById('progressIndicator');
+            
+            submitBtn.innerHTML = 'GENERATING...';
+            submitBtn.disabled = true;
+            progressIndicator.style.display = 'block';
+        });
+
+        // ========================================
+        // AUTO-SCROLL TO NEXT SECTION
+        // ========================================
+        document.querySelectorAll('.form-section').forEach((section, index) => {
+            const inputs = section.querySelectorAll('input[required]');
+            
+            inputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    const sectionInputs = section.querySelectorAll('input[required]');
+                    let allFilled = true;
+                    
+                    sectionInputs.forEach(inp => {
+                        if (inp.type === 'file' && !inp.files[0]) allFilled = false;
+                        if (inp.type !== 'file' && !inp.value.trim()) allFilled = false;
+                    });
+                    
+                    if (allFilled) {
+                        const nextSection = document.querySelectorAll('.form-section')[index + 1];
+                        if (nextSection) {
+                            setTimeout(() => {
+                                nextSection.scrollIntoView({ 
+                                    behavior: 'smooth', 
+                                    block: 'start' 
+                                });
+                            }, 500);
+                        }
+                    }
+                });
+            });
+        });
+
+        // ========================================
+        // FORM VALIDATION FEEDBACK
+        // ========================================
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.required && !this.value.trim()) {
+                    this.style.borderColor = '#ef4444';
+                } else {
+                    this.style.borderColor = '#e5e7eb';
+                }
+            });
+
+            input.addEventListener('input', function() {
+                if (this.value.trim()) {
+                    this.style.borderColor = '#10b981';
+                }
+            });
+        });
+
+        // ========================================
+        // SMOOTH SCROLL TO TOP
+        // ========================================
+        window.addEventListener('load', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // ========================================
+        // KEYBOARD SHORTCUTS
+        // ========================================
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + Enter to submit form
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                const submitBtn = document.getElementById('submitBtn');
+                if (!submitBtn.disabled) {
+                    document.getElementById('evidenceForm').submit();
+                }
+            }
+        });
+
+        // ========================================
+        // CONSOLE INFO
+        // ========================================
+        console.log('%c🚀 Generator Laporan Evidence PT Telkom', 'color: #E42313; font-size: 18px; font-weight: bold;');
+        console.log('%c✅ Auto-fill aktif untuk field yang saling terkait', 'color: #10b981; font-size: 12px;');
+        console.log('%c📸 Preview gambar otomatis setelah upload', 'color: #3b82f6; font-size: 12px;');
+        console.log('%c⌨️  Shortcut: Ctrl/Cmd + Enter untuk submit', 'color: #8b5cf6; font-size: 12px;');
+    </script>
+</body>
+</html>

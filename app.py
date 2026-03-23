@@ -55,49 +55,42 @@ def create_title_header(doc, title):
     run.font.size = Pt(16)
     run.bold = True
     p_format = title_para.paragraph_format
-    p_format.space_before = Pt(0)   # jarak sebelum judul
+    p_format.space_before = Pt(0)
     p_format.space_after = Pt(24) 
     return title_para
 
 def add_image_to_cell(cell, image_path, width=None):
     """Add image to table cell with proper alignment and error handling"""
     if image_path and os.path.exists(image_path):
-        # Clear existing content
         cell.text = ''
         paragraph = cell.paragraphs[0]
         paragraph.clear()
         
         run = paragraph.add_run()
         try:
-            picture = run.add_picture(image_path)  # tambahkan dulu tanpa ukuran
-            
+            picture = run.add_picture(image_path)
             picture.width = Cm(5.2)
             picture.height = Cm(7.1)
             paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
             p_format = paragraph.paragraph_format
             p_format.space_before = Pt(0)
             p_format.space_after = Pt(8)
-
         except Exception as e:
-            # If image fails to load, add error text
             cell.text = f"Image Error: {str(e)[:100]}"
             print(f"Error adding image {image_path}: {str(e)}")
     else:
         cell.text = "Image not found"
-        
 
 def add_label_box(cell, text, width_cm=5, height_cm=0.6):
-    # buat tabel 1x1
+    """Create label box with border"""
     table = cell.add_table(rows=1, cols=1)
     table.style = 'Table Grid'
     table.autofit = False
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
 
-    # atur ukuran
     table.columns[0].width = Cm(width_cm)
     table.rows[0].height = Cm(height_cm)
     
-    # isi teks
     inner_cell = table.cell(0, 0)
     inner_cell.width = Cm(width_cm)
     inner_cell.height = Cm(height_cm)
@@ -110,8 +103,64 @@ def add_label_box(cell, text, width_cm=5, height_cm=0.6):
 
     return table
 
+def add_port_core_box(cell, port, core):
+    """Create box for Port & Core in one bordered box"""
+    cell.text = ""
+    
+    box_table = cell.add_table(rows=1, cols=1)
+    box_table.style = 'Table Grid'
+    box_table.autofit = False
+    box_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    box_cell = box_table.cell(0, 0)
+    
+    # Set padding/margin
+    tc = box_cell._element
+    tcPr = tc.get_or_add_tcPr()
+    tcMar = OxmlElement('w:tcMar')
+    for margin_name in ['top', 'left', 'bottom', 'right']:
+        node = OxmlElement(f'w:{margin_name}')
+        node.set(qn('w:w'), '100')
+        node.set(qn('w:type'), 'dxa')
+        tcMar.append(node)
+    tcPr.append(tcMar)
+    
+    # Add text
+    para = box_cell.paragraphs[0]
+    para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = para.add_run(f"PORT : {port} CORE : {core}")
+    run.font.size = Pt(10)
+    run.font.bold = True
+
+def add_slot_port_box(cell, slot, port):
+    """Create box for Slot & Port in one bordered box"""
+    cell.text = ""
+    
+    box_table = cell.add_table(rows=1, cols=1)
+    box_table.style = 'Table Grid'
+    box_table.autofit = False
+    box_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    box_cell = box_table.cell(0, 0)
+    
+    # Set padding/margin
+    tc = box_cell._element
+    tcPr = tc.get_or_add_tcPr()
+    tcMar = OxmlElement('w:tcMar')
+    for margin_name in ['top', 'left', 'bottom', 'right']:
+        node = OxmlElement(f'w:{margin_name}')
+        node.set(qn('w:w'), '100')
+        node.set(qn('w:type'), 'dxa')
+        tcMar.append(node)
+    tcPr.append(tcMar)
+    
+    # Add text
+    para = box_cell.paragraphs[0]
+    para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = para.add_run(f"SLOT : {slot} PORT : {port}")
+    run.font.size = Pt(10)
+    run.font.bold = True
+
 def set_cell_margin(cell, top=0, start=0, bottom=0, end=0):
-    """Atur margin cell (dalam twips, 1 pt ≈ 20 twips)."""
+    """Set cell margin (in twips, 1 pt ≈ 20 twips)"""
     tc = cell._tc
     tcPr = tc.get_or_add_tcPr()
     tcMar = OxmlElement('w:tcMar')
@@ -123,13 +172,14 @@ def set_cell_margin(cell, top=0, start=0, bottom=0, end=0):
     tcPr.append(tcMar)
 
 def remove_table_borders(table):
-        tbl = table._element
-        tblBorders = OxmlElement('w:tblBorders')
-        for border_name in ('top', 'left', 'bottom', 'right', 'insideH', 'insideV'):
-            border = OxmlElement(f'w:{border_name}')
-            border.set(qn('w:val'), 'nil')   # nil = tidak ada border
-            tblBorders.append(border)
-        tbl.tblPr.append(tblBorders)
+    """Remove table borders"""
+    tbl = table._element
+    tblBorders = OxmlElement('w:tblBorders')
+    for border_name in ('top', 'left', 'bottom', 'right', 'insideH', 'insideV'):
+        border = OxmlElement(f'w:{border_name}')
+        border.set(qn('w:val'), 'nil')
+        tblBorders.append(border)
+    tbl.tblPr.append(tblBorders)
 
 def generate_word_document(form_data, uploaded_files):
     """Generate Word document in landscape orientation with improved structure"""
@@ -138,24 +188,19 @@ def generate_word_document(form_data, uploaded_files):
     # Set landscape orientation and margins
     set_landscape_orientation(doc)
     
-    # PAGE 1 - GPON & FTM DATA (Landscape Layout)
+    # PAGE 1 - GPON & FTM DATA
     section = doc.sections[0] 
     header = section.header
-
-    # kosongkan isi header dulu
     header.is_linked_to_previous = False
     header.paragraphs[0].clear()
 
-    # tambahkan judul ke header
     paragraph = header.paragraphs[0] if header.paragraphs else header.add_paragraph()
     run = paragraph.add_run(form_data.get('judul_laporan'))
-
     run.bold = True
     run.font.size = Pt(16)
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    
 
-    # Create main table for both GPON and FTM side by side (better use of landscape space)
+    # Main table for GPON and FTM side by side
     main_table = doc.add_table(rows=1, cols=2)
     main_table.autofit = False
     remove_table_borders(main_table)
@@ -173,38 +218,37 @@ def generate_word_document(form_data, uploaded_files):
     gpon_info_table = gpon_cell.add_table(rows=1, cols=1)
     gpon_info_table.style = 'Table Grid'
     gpon_info_cell = gpon_info_table.cell(0, 0)
-    gpon_info_table.autofit =False
+    gpon_info_table.autofit = False
     gpon_info_table.columns[0].width = Cm(9)
     gpon_info_cell.width = Cm(8)
     gpon_info_table.alignment = WD_TABLE_ALIGNMENT.CENTER 
 
     gpon_info_para = gpon_info_cell.paragraphs[0]
-    gpon_info_para.add_run(f"{form_data.get('sto_gpon',)}").bold = True
-    gpon_info_para.add_run(f"\n{form_data.get('ruangan_gpon')}").bold = True
-    gpon_info_para.add_run(f"\n{form_data.get('koordinat_gpon')}").bold = True
-    gpon_info_para.add_run(f"\n{form_data.get('IP_Address')}").bold = True
+    gpon_info_para.add_run(f"{form_data.get('sto_gpon', '')}").bold = True
+    gpon_info_para.add_run(f"\n{form_data.get('ruangan_gpon', '')}").bold = True
+    gpon_info_para.add_run(f"\n{form_data.get('koordinat_gpon', '')}").bold = True
+    gpon_info_para.add_run(f"\n{form_data.get('IP_Address', '')}").bold = True
     gpon_info_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
     
-    # GPON Images Grid (2x2) - optimized for landscape
+    # GPON Images Grid (2x2)
     gpon_img_table = gpon_cell.add_table(rows=2, cols=2)
     gpon_img_table.style = 'Table Grid'
     gpon_img_table.alignment = WD_TABLE_ALIGNMENT.CENTER
 
-    # pastikan tiap cell juga ikut
     for row in gpon_img_table.rows:
         row.cells[0].width = Cm(6.5)
         row.cells[1].width = Cm(6.5)
     
-    # GPON Images with larger size for landscape
+    # GPON Images with proper labels
     gpon_images = [
-        ('foto_gpon_1', 'lemari_gpon'),
-        ('foto_gpon_2', 'keterangan_gpon_2'),
-        ('foto_gpon_3', 'card_gpon'),
-        ('foto_gpon_4', 'port_gpon')
+        ('foto_gpon_1', 'lemari_gpon', 'LEMARI '),
+        ('foto_gpon_2', 'keterangan_gpon_2', None),
+        ('foto_gpon_3', 'card_gpon', 'CARD '),
+        ('foto_gpon_4', 'port_gpon', 'PORT ')
     ]
 
     positions = [(0, 0), (0, 1), (1, 0), (1, 1)]
-    for i, (img_key, text_key) in enumerate(gpon_images):
+    for i, (img_key, text_key, label_prefix) in enumerate(gpon_images):
         row, col = positions[i]
         cell = gpon_img_table.cell(row, col)
         cell.text = ""
@@ -218,30 +262,35 @@ def generate_word_document(form_data, uploaded_files):
             add_image_to_cell(img_cell, uploaded_files.get(img_key), width=Inches(2.0))
         
         text_cell = nested.cell(1, 0)
-        add_label_box(text_cell, form_data.get(text_key, ""))
+        value = form_data.get(text_key, '')
+        if label_prefix and value:
+            display_text = f"{label_prefix}: {value}"
+        else:
+            display_text = value
+        add_label_box(text_cell, display_text)
         set_cell_margin(cell, bottom=50)
 
     # FTM Section (Right side)
     ftm_cell = main_table.cell(0, 1)
     ftm_para = ftm_cell.paragraphs[0]
     ftm_para.clear()
-    
+
     # FTM Info Box
     ftm_info_table = ftm_cell.add_table(rows=1, cols=1)
     ftm_info_table.style = 'Table Grid'
     ftm_info_cell = ftm_info_table.cell(0, 0)
-    ftm_info_table.autofit =False
+    ftm_info_table.autofit = False
     ftm_info_table.columns[0].width = Cm(9)
     ftm_info_cell.width = Cm(8)
     ftm_info_table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    
+
     ftm_info_para = ftm_info_cell.paragraphs[0]
-    ftm_info_para.add_run(f"{form_data.get('sto_ftm', )}").bold = True
-    ftm_info_para.add_run(f"\n{form_data.get('ruangan_ftm')}").bold = True
-    ftm_info_para.add_run(f"\n{form_data.get('koordinat_ftm')}").bold = True
-    ftm_info_para.add_run(f"\n{form_data.get('kode_ftm')}").bold = True
+    ftm_info_para.add_run(f"{form_data.get('sto_gpon', '')}").bold = True
+    ftm_info_para.add_run(f"\n{form_data.get('ruangan_ftm', '')}").bold = True
+    ftm_info_para.add_run(f"\n{form_data.get('koordinat_gpon', '')}").bold = True
+    ftm_info_para.add_run(f"\n{form_data.get('kode_ftm', '')}").bold = True
     ftm_info_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    
+
     # FTM Images Grid (2x2)
     ftm_img_table = ftm_cell.add_table(rows=2, cols=2)
     ftm_img_table.style = 'Table Grid'
@@ -250,16 +299,21 @@ def generate_word_document(form_data, uploaded_files):
     for row in ftm_img_table.rows:
         row.cells[0].width = Cm(6.5)
         row.cells[1].width = Cm(6.5)
-    
+
     ftm_images = [
-        ('foto_ftm_1', 'lemari_ftm'),
-        ('foto_ftm_2', 'keterangan_ftm_2'),
-        ('foto_ftm_3', 'otb_ftm'),
-        ('foto_ftm_4', 'slot_port_ftm')
+        ('foto_ftm_1', 'lemari_ftm', 'LEMARI ', False),
+        ('foto_ftm_2', 'keterangan_ftm_2', None, False),
+        ('foto_ftm_3', 'otb_ftm', 'OTB ', False),
+        ('foto_ftm_4', 'slot_port_ftm', None, True)  # Special handling
     ]
 
     positions = [(0, 0), (0, 1), (1, 0), (1, 1)]
-    for i, (img_key, text_key) in enumerate(ftm_images):
+    for i, item in enumerate(ftm_images):
+        img_key = item[0]
+        text_key = item[1]
+        label_prefix = item[2]
+        is_slot_port = item[3]
+        
         row, col = positions[i]
         cell = ftm_img_table.cell(row, col)
         cell.text = ""
@@ -273,11 +327,23 @@ def generate_word_document(form_data, uploaded_files):
             add_image_to_cell(img_cell, uploaded_files.get(img_key), width=Inches(2.0))
         
         text_cell = nested.cell(1, 0)
-        add_label_box(text_cell, form_data.get(text_key, ""))
         
+        # Special handling for slot & port
+        if is_slot_port:
+            slot = form_data.get('slot_ftm', '')
+            port = form_data.get('port_ftm', '')
+            display_text = f"SLOT : {slot} PORT : {port}"  
+            add_label_box(text_cell, display_text)
+        else:
+            value = form_data.get(text_key, '')
+            if label_prefix:
+                display_text = f"{label_prefix}: {value}"
+            else:
+                display_text = value
+            add_label_box(text_cell, display_text)
         set_cell_margin(cell, bottom=50)
 
-    # PAGE 2 - FTM Detail & ODC (Landscape optimized)
+    # PAGE 2 - FTM Detail & ODC
     add_page_break(doc)
     
     page2_table = doc.add_table(rows=1, cols=2)
@@ -296,17 +362,18 @@ def generate_word_document(form_data, uploaded_files):
     ftm_detail_info_table = ftm_detail_cell.add_table(rows=1, cols=1)
     ftm_detail_info_table.style = 'Table Grid'
     ftm_detail_info_cell = ftm_detail_info_table.cell(0, 0)
-    ftm_detail_info_table.autofit =False
+    ftm_detail_info_table.autofit = False
     ftm_detail_info_table.columns[0].width = Cm(9)
     ftm_detail_info_cell.width = Cm(8)
     ftm_detail_info_table.alignment = WD_TABLE_ALIGNMENT.CENTER 
 
     ftm_detail_info_para = ftm_detail_info_cell.paragraphs[0]
-    ftm_detail_info_para.add_run(f" {form_data.get('ruang_ftm')}").bold = True
-    ftm_detail_info_para.add_run(f"\n{form_data.get('koordinat_ftm_detail')}").bold = True
-    ftm_detail_info_para.add_run(f"\n{form_data.get('kode_ftm_detail')}").bold = True
+    ftm_detail_info_para.add_run(f"\n{form_data.get('ruangan_ftm', '')}").bold = True
+    ftm_detail_info_para.add_run(f"\n{form_data.get('koordinat_gpon', '')}").bold = True
+    ftm_detail_info_para.add_run(f"\n{form_data.get('kode_ftm_detail', '')}").bold = True
     ftm_detail_info_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
+    # FTM Detail: 2 images on top row
     ftm_detail_top_table = ftm_detail_cell.add_table(rows=1, cols=2)
     ftm_detail_top_table.style = 'Table Grid'
     ftm_detail_top_table.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -314,6 +381,7 @@ def generate_word_document(form_data, uploaded_files):
         row.cells[0].width = Cm(6.5)
         row.cells[1].width = Cm(6.5)
 
+    # FTM Detail: 3 images on bottom row
     ftm_detail_bottom_table = ftm_detail_cell.add_table(rows=1, cols=3)
     ftm_detail_bottom_table.style = 'Table Grid'
     for row in ftm_detail_bottom_table.rows:
@@ -322,15 +390,16 @@ def generate_word_document(form_data, uploaded_files):
         row.cells[2].width = Cm(5.9)
 
     ftm_detail_images = [
-        ('foto_ftm_detail_1', 'no_lemari_ftm'),
-        ('foto_ftm_detail_2', 'keterangan_ftm_detail_2'),
-        ('foto_ftm_detail_3', 'no_otb'),
-        ('foto_ftm_detail_4', 'no_panel'),
-        ('foto_ftm_detail_5', 'no_port_core')
+        ('foto_ftm_detail_1', 'no_lemari_ftm', 'LEMARI ', False),
+        ('foto_ftm_detail_2', 'keterangan_ftm_detail_2', None, False),
+        ('foto_ftm_detail_3', 'no_otb', 'OTB ', False),
+        ('foto_ftm_detail_4', 'no_panel', 'PANEL ', False),
+        ('foto_ftm_detail_5', 'port_core', None, True)  # Special handling for port & core
     ]
     
+    # Top 2 images
     for i in range(2):
-        img_key, text_key = ftm_detail_images[i]
+        img_key, text_key, label_prefix, is_special = ftm_detail_images[i]
         cell = ftm_detail_top_table.cell(0, i)
         cell.text = ""
 
@@ -343,11 +412,17 @@ def generate_word_document(form_data, uploaded_files):
             add_image_to_cell(img_cell, uploaded_files.get(img_key))
 
         text_cell = nested.cell(1, 0)
-        add_label_box(text_cell, form_data.get(text_key))
+        value = form_data.get(text_key, '')
+        if label_prefix and value:
+            display_text = f"{label_prefix}: {value}"
+        else:
+            display_text = value
+        add_label_box(text_cell, display_text)
         set_cell_margin(cell, bottom=50)
         
+    # Bottom 3 images
     for i in range(3):
-        img_key, text_key = ftm_detail_images[i+2]
+        img_key, text_key, label_prefix, is_special = ftm_detail_images[i+2]
         cell = ftm_detail_bottom_table.cell(0, i)
         cell.text = ""
 
@@ -360,7 +435,21 @@ def generate_word_document(form_data, uploaded_files):
             add_image_to_cell(img_cell, uploaded_files.get(img_key))
 
         text_cell = nested.cell(1, 0)
-        add_label_box(text_cell, form_data.get(text_key))
+        
+        # Special handling for port & core
+        if is_special:
+            port_no = form_data.get('port_no', '')
+            core_no = form_data.get('core_no', '')
+            display_text = f"PORT : {port_no} CORE : {core_no}"
+            add_label_box(text_cell, display_text)
+        else:
+            value = form_data.get(text_key, '')
+            if label_prefix and value:
+                display_text = f"{label_prefix}: {value}"
+            else:
+                display_text = value
+            add_label_box(text_cell, display_text)
+        
         set_cell_margin(cell, bottom=50)
     
     # ODC Section (Right)
@@ -371,16 +460,16 @@ def generate_word_document(form_data, uploaded_files):
     odc_info_table = odc_cell.add_table(rows=1, cols=1)
     odc_info_table.style = 'Table Grid'
     odc_info_cell = odc_info_table.cell(0, 0)
-    odc_info_table.autofit =False
+    odc_info_table.autofit = False
     odc_info_table.columns[0].width = Cm(9)
     odc_info_cell.width = Cm(8)
     odc_info_table.alignment = WD_TABLE_ALIGNMENT.CENTER
 
     odc_info_para = odc_info_cell.paragraphs[0]
-    odc_info_para.add_run(f"{form_data.get('odc_nama')}").bold = True
-    odc_info_para.add_run(f"\n{form_data.get('kode_odc')}").bold = True
-    odc_info_para.add_run(f"\n{form_data.get('koordinat_odc')}").bold = True
-    odc_info_para.add_run(f"\n{form_data.get('lokasi_odc')}").bold = True
+    odc_info_para.add_run(f"{form_data.get('odc_nama', '')}").bold = True
+    odc_info_para.add_run(f"\n{form_data.get('kode_odc', '')}").bold = True
+    odc_info_para.add_run(f"\n{form_data.get('koordinat_odc', '')}").bold = True
+    odc_info_para.add_run(f"\n{form_data.get('lokasi_odc', '')}").bold = True
     odc_info_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     odc_top_table = odc_cell.add_table(rows=1, cols=2)
@@ -398,15 +487,15 @@ def generate_word_document(form_data, uploaded_files):
         row.cells[2].width = Cm(5.9)
 
     odc_images = [
-        ('foto_odc_1', ('keterangan_odc_1',)),
-        ('foto_odc_2', ('keterangan_odc_2',)),
-        ('foto_odc_3', ('no_in_tray', 'no_tray')),
-        ('foto_odc_4', ('no_port_core_odc', 'no_core_port_odc')),
-        ('foto_odc_5', ('hasil_ukur', 'feeder'))
+        ('foto_odc_1', [('keterangan_odc_1', None)]),
+        ('foto_odc_2', [('keterangan_odc_2', None)]),
+        ('foto_odc_3', [('no_in_tray', ''), ('no_tray', 'TRAY ')]),
+        ('foto_odc_4', [('no_port_core_odc', 'PORT '), ('no_core_port_odc', 'CORE ')]),
+        ('foto_odc_5', [('hasil_ukur', None), ('feeder', None)])
     ]
     
     for i in range(2):
-        img_key, text_keys = odc_images[i]
+        img_key, text_list = odc_images[i]
         cell = odc_top_table.cell(0, i)
         cell.text = ""
 
@@ -419,12 +508,17 @@ def generate_word_document(form_data, uploaded_files):
             add_image_to_cell(img_cell, uploaded_files.get(img_key))
 
         text_cell = nested.cell(1, 0)
-        for text_key in text_keys:
-            add_label_box(text_cell, form_data.get(text_key, ""))
-            set_cell_margin(cell, bottom=50)
+        for text_key, label_prefix in text_list:
+            value = form_data.get(text_key, '')
+            if label_prefix and value:
+                display_text = f"{label_prefix}: {value}"
+            else:
+                display_text = value
+            add_label_box(text_cell, display_text)
+        set_cell_margin(cell, bottom=50)
 
     for i in range(3):
-        img_key, text_keys = odc_images[i+2]
+        img_key, text_list = odc_images[i+2]
         cell = odc_bottom_table.cell(0, i)
         cell.text = ""
 
@@ -437,9 +531,14 @@ def generate_word_document(form_data, uploaded_files):
             add_image_to_cell(img_cell, uploaded_files.get(img_key))
 
         text_cell = nested.cell(1, 0)
-        for text_key in text_keys:
-            add_label_box(text_cell, form_data.get(text_key, ""))
-            set_cell_margin(cell, bottom=50)
+        for text_key, label_prefix in text_list:
+            value = form_data.get(text_key, '')
+            if label_prefix and value:
+                display_text = f"{label_prefix}: {value}"
+            else:
+                display_text = value
+            add_label_box(text_cell, display_text)
+        set_cell_margin(cell, bottom=50)
 
     # PAGE 3 - SPL & ODP
     add_page_break(doc)
@@ -465,10 +564,10 @@ def generate_word_document(form_data, uploaded_files):
     odc_info_table.alignment = WD_TABLE_ALIGNMENT.CENTER
 
     odc_para = odc_cell_inner.paragraphs[0]
-    odc_para.add_run(f"{form_data.get('odc_hal3')}").bold = True
-    odc_para.add_run(f"\n{form_data.get('detail_odc_hal3')}").bold = True
-    odc_para.add_run(f"\n{form_data.get('koordinat_odc_hal3')}").bold = True
-    odc_para.add_run(f"\n{form_data.get('lokasi_odc_hal3')}").bold = True
+    odc_para.add_run(f"{form_data.get('odc_hal3', '')}").bold = True
+    odc_para.add_run(f"\n{form_data.get('detail_odc_hal3', '')}").bold = True
+    odc_para.add_run(f"\n{form_data.get('koordinat_odc_hal3', '')}").bold = True
+    odc_para.add_run(f"\n{form_data.get('lokasi_odc_hal3', '')}").bold = True
     odc_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     spl_img_table = left_cell.add_table(rows=2, cols=2)
@@ -479,14 +578,14 @@ def generate_word_document(form_data, uploaded_files):
         row.cells[1].width = Cm(6.5)
 
     spl_images = [
-        ('foto_spl_1', ('keterangan_spl_1', 'spl_1')),
-        ('foto_spl_2', ('ukur_spl','hasil_ukur_spl')),
-        ('foto_out', ('in_out', 'keterangan_out')),
-        ('foto_port', ('keterangan_port','keterangan_core'))
+        ('foto_spl_1', [('keterangan_spl_1', None), ('spl_1', None)]),
+        ('foto_spl_2', [('ukur_spl', None), ('hasil_ukur_spl', None)]),
+        ('foto_out', [('in_out', None), ('keterangan_out', 'TRAY ')]),
+        ('foto_port', [('keterangan_port', 'PORT '), ('keterangan_core', 'CORE ')])
     ]
     
     positions = [(0, 0), (0, 1), (1, 0), (1, 1)]
-    for i, (img_key, text_keys) in enumerate(spl_images):
+    for i, (img_key, text_list) in enumerate(spl_images):
         row, col = positions[i]
         cell = spl_img_table.cell(row, col)
         cell.text = ""
@@ -500,8 +599,13 @@ def generate_word_document(form_data, uploaded_files):
             add_image_to_cell(img_cell, uploaded_files.get(img_key))
         
         text_cell = nested.cell(1, 0)
-        for text_key in text_keys:
-            add_label_box(text_cell, form_data.get(text_key, ""))
+        for text_key, label_prefix in text_list:
+            value = form_data.get(text_key, '')
+            if label_prefix and value:
+                display_text = f"{label_prefix}: {value}"
+            else:
+                display_text = value
+            add_label_box(text_cell, display_text)
         
         set_cell_margin(cell, bottom=50)
 
@@ -518,10 +622,10 @@ def generate_word_document(form_data, uploaded_files):
     odp_info_table.alignment = WD_TABLE_ALIGNMENT.CENTER
 
     odp_para = odp_cell_inner.paragraphs[0]
-    odp_para.add_run(f"{form_data.get('odp_hal3')} - ").bold = True
-    odp_para.add_run(f"\n{form_data.get('detail_odp_hal3')}").bold = True
-    odp_para.add_run(f"\n{form_data.get('lokasi_odp_hal3')}").bold = True
-    odp_para.add_run(f"\n{form_data.get('koordinat_odp_hal3')}").bold = True
+    odp_para.add_run(f"{form_data.get('odp_hal3', '')}").bold = True
+    odp_para.add_run(f"\n{form_data.get('detail_odp_hal3', '')}").bold = True
+    odp_para.add_run(f"\n{form_data.get('lokasi_odp_hal3', '')}").bold = True
+    odp_para.add_run(f"\n{form_data.get('koordinat_odp_hal3', '')}").bold = True
     odp_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     odp_img_table = right_cell.add_table(rows=2, cols=3)
@@ -533,16 +637,16 @@ def generate_word_document(form_data, uploaded_files):
         row.cells[2].width = Cm(6)
 
     odp_images = [
-        ('foto_odp_1', ('keterangan_odp_1', 'keterangan_odp_12')),
-        ('foto_odp_2', ('keterangan_odp_2', 'keterangan_odp_21')),
-        ('foto_spl_3', ('keterangan_spl_3', 'keterangan_spl_31')),
-        ('foto_qr_1', ('keterangan_qr_1', 'keterangan_qr_12')),
-        ('foto_qr_2', ('keterangan_qr_2', 'keterangan_qr_21')),
-        ('foto_valin', ('keterangan_valin', 'keterangan_valin1'))
+        ('foto_odp_1', [('keterangan_odp_1', None), ('keterangan_odp_12', None)]),
+        ('foto_odp_2', [('keterangan_odp_2', None), ('keterangan_odp_21', None)]),
+        ('foto_spl_3', [('keterangan_spl_3', None), ('keterangan_spl_31', None)]),
+        ('foto_qr_1', [('keterangan_qr_1', None), ('keterangan_qr_12', None)]),
+        ('foto_qr_2', [('keterangan_qr_2', None), ('keterangan_qr_21', None)]),
+        ('foto_valin', [('keterangan_valin', None), ('keterangan_valin1', None)])
     ]
 
     positions = [(0,0), (0,1), (0,2), (1,0), (1,1), (1,2)]
-    for i, (img_key, text_keys) in enumerate(odp_images):
+    for i, (img_key, text_list) in enumerate(odp_images):
         row, col = positions[i]
         cell = odp_img_table.cell(row, col)
         cell.text = ""
@@ -556,8 +660,13 @@ def generate_word_document(form_data, uploaded_files):
             add_image_to_cell(img_cell, uploaded_files.get(img_key))
         
         text_cell = nested.cell(1, 0)
-        for text_key in text_keys:
-            add_label_box(text_cell, form_data.get(text_key, ""))
+        for text_key, label_prefix in text_list:
+            value = form_data.get(text_key, '')
+            if label_prefix and value:
+                display_text = f"{label_prefix}: {value}"
+            else:
+                display_text = value
+            add_label_box(text_cell, display_text)
         
         set_cell_margin(cell, bottom=50)
 
@@ -581,10 +690,10 @@ def generate_word_document(form_data, uploaded_files):
     odp4_info_table.alignment = WD_TABLE_ALIGNMENT.CENTER
     
     odp4_info = odp4_info_cell.paragraphs[0]
-    odp4_info.add_run(f"{form_data.get('odp_hal4','')}").bold = True
-    odp4_info.add_run(f"\n{form_data.get('odp1_hal4','')}").bold = True
-    odp4_info.add_run(f"\n{form_data.get('lokasi_odp_hal4','')}").bold = True
-    odp4_info.add_run(f"\n{form_data.get('detail_odp_hal4','')}").bold = True
+    odp4_info.add_run(f"{form_data.get('odp_hal4', '')}").bold = True
+    odp4_info.add_run(f"\n{form_data.get('odp1_hal4', '')}").bold = True
+    odp4_info.add_run(f"\n{form_data.get('lokasi_odp_hal4', '')}").bold = True
+    odp4_info.add_run(f"\n{form_data.get('detail_odp_hal4', '')}").bold = True
     odp4_info.alignment = WD_ALIGN_PARAGRAPH.CENTER
     
     port_table = odp4_cell.add_table(rows=2, cols=4)
@@ -596,27 +705,33 @@ def generate_word_document(form_data, uploaded_files):
     port_table.alignment = WD_TABLE_ALIGNMENT.CENTER
     
     port_images = [
-        ('foto_port_1', 'keterangan_port_1'),
-        ('foto_port_2', 'keterangan_port_2'),
-        ('foto_port_3', 'keterangan_port_3'),
-        ('foto_port_4', 'keterangan_port_4'),
-        ('foto_port_5', 'keterangan_port_5'),
-        ('foto_port_6', 'keterangan_port_6'),
-        ('foto_port_7', 'keterangan_port_7'),
-        ('foto_port_8', 'keterangan_port_8')
+        ('foto_port_1', 'PORT 1'),
+        ('foto_port_2', 'PORT 2'),
+        ('foto_port_3', 'PORT 3'),
+        ('foto_port_4', 'PORT 4'),
+        ('foto_port_5', 'PORT 5'),
+        ('foto_port_6', 'PORT 6'),
+        ('foto_port_7', 'PORT 7'),
+        ('foto_port_8', 'PORT 8')
     ]
-    
+
     positions = [(0,0), (0,1), (0,2), (0,3), (1,0), (1,1), (1,2), (1,3)]
-    for i, (img_key, text_key) in enumerate(port_images):
+    for i, (img_key, label) in enumerate(port_images):  
         row, col = positions[i]
         cell = port_table.cell(row, col)
+        cell.text = ""
+        nested = cell.add_table(rows=2, cols=1)
+        remove_table_borders(nested)
 
-        if uploaded_files.get(img_key):
-            add_image_to_cell(cell, uploaded_files.get(img_key), width=Inches(2.0))
+        # Gambar
+        img_cell = nested.cell(0, 0)
+        if uploaded_files.get(img_key):  
+            add_image_to_cell(img_cell, uploaded_files[img_key])
 
-        caption = form_data.get(text_key, '')
-        add_label_box(cell, caption)
-
+        # Label 
+        text_cell = nested.cell(1, 0)
+        caption = f"PORT {i + 1}" 
+        add_label_box(text_cell, caption)
         set_cell_margin(cell, bottom=50)
 
     # PAGE 5 - DOCUMENTATION
@@ -659,7 +774,7 @@ def generate_word_document(form_data, uploaded_files):
 @app.route('/')
 def index():
     """Main page"""
-    return render_template("index_v7.html")
+    return render_template("index_v2.html")
 
 @app.route('/generate', methods=['POST'])
 def generate_report():
